@@ -28,9 +28,39 @@ public:
   double get_size() const;
   boost::shared_ptr<Cell> get_parent();
   void set_parent(boost::shared_ptr<Cell>);
+  boost::shared_ptr<Cell> get_backpoint_d_star_extra();
+  void set_backpoint_d_star_extra(boost::shared_ptr<Cell>);
+
+  bool get_overlapped() const;
+  void set_overlapped(bool);
+  bool get_overlapped_r() const;
+  void set_overlapped_r(bool);
+  bool get_visited() const;
+  void set_visited(bool);
+  bool get_visited_r() const;
+  void set_visited_r(bool);
+  double get_cost_d_star() const;
+  void set_cost_d_star(double cost_d_star);
+  double get_cost_d_star_extra() const;
+  void set_cost_d_star_extra(double cost_d_star_extra);
+
+  bool get_check_d_star_extra() const;
+  void set_check_d_star_extra(bool);
+
+//  int get_name() const;
+//  void set_name(int);
 
 private:
+  bool visited_r;
+  bool visited;
+  bool overlapped_r;
+  bool overlapped;
+  int cost_d_star;
+  int cost_d_star_extra;
+  bool check_d_star_extra;
   boost::shared_ptr<Cell> parent;
+  boost::shared_ptr<Cell> backpoint_d_star_extra;
+//  int name;
 };
 
 typedef boost::shared_ptr<Cell> CellPtr;

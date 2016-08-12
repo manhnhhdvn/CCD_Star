@@ -10,6 +10,8 @@
 #include "../include/plans/mstc/mstc_online.hpp"
 #include "../include/plans/boustrophedon_online/boustrophedon_online.hpp"
 #include "../include/plans/boustrophedon/boustrophedon.hpp"
+#include "../include/plans/ccd_star/ccd_star.hpp"
+//#include "../include/plans/random_walk.hpp"
 #include "../include/wandrian.hpp"
 
 #define CLOCKWISE true
@@ -24,6 +26,7 @@ using namespace wandrian::plans::stc;
 using namespace wandrian::plans::mstc;
 using namespace wandrian::plans::boustrophedon_online;
 using namespace wandrian::plans::boustrophedon;
+using namespace wandrian::plans::ccd_star;
 
 namespace wandrian {
 
@@ -106,6 +109,15 @@ void Wandrian::wandrian_run() {
     boustrophedon->set_behavior_go_to(
         boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
     boustrophedon->cover();
+  } else if (robot->get_plan_name() == "ccds") {
+    CCDStarPtr ccds = CCDStarPtr(new CCDStar());
+    ccds->initialize(
+        PointPtr(
+            new Point(robot->get_starting_point_x(),
+                robot->get_starting_point_y())), robot->get_tool_size());
+    ccds->set_behavior_go_to(
+        boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
+    ccds->cover();
   }
   robot->stop();
 }
