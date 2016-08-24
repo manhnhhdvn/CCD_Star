@@ -39,6 +39,8 @@ private:
   bool boustrophedon_online_go_to(PointPtr, bool);
   bool boustrophedon_online_see_obstacle(VectorPtr, double);
   bool boustrophedon_go_to(PointPtr, bool);
+  bool ccdstar_see_obstacle(VectorPtr, double);
+  bool ccdstar_go_to(PointPtr, bool);
 
   // Helpers
   bool go_to(PointPtr, bool);

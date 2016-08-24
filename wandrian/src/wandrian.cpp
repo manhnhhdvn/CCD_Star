@@ -116,7 +116,10 @@ void Wandrian::wandrian_run() {
             new Point(robot->get_starting_point_x(),
                 robot->get_starting_point_y())), robot->get_tool_size());
     ccds->set_behavior_go_to(
-        boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
+        boost::bind(&Wandrian::ccdstar_go_to, this, _1, _2));
+    ccds->set_behavior_see_obstacle(
+            boost::bind(&Wandrian::ccdstar_see_obstacle, this, _1,
+                _2));
     ccds->cover();
   }
   robot->stop();
@@ -186,6 +189,15 @@ bool Wandrian::full_spiral_stc_go_to(PointPtr position, bool flexibility) {
 }
 
 bool Wandrian::full_spiral_stc_see_obstacle(VectorPtr direction,
+    double distance) {
+  return spiral_stc_see_obstacle(direction, distance);
+}
+
+bool Wandrian::ccdstar_go_to(PointPtr position, bool flexibility) {
+  return spiral_stc_go_to(position, flexibility);
+}
+
+bool Wandrian::ccdstar_see_obstacle(VectorPtr direction,
     double distance) {
   return spiral_stc_see_obstacle(direction, distance);
 }

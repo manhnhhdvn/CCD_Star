@@ -31,12 +31,13 @@ public:
 	CCDStar();
 	~CCDStar();
 	virtual void initialize(PointPtr, double);
-	virtual void move_robot(CellPtr);
+//	virtual void move_robot(CellPtr);
 
 	void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 	void d_star(CellPtr, bool, bool);
 	bool check_exist(CellPtr);
 	int count;
+  void cover();
 
 protected:
 	std::set<CellPtr, CellComp> old_cells;
