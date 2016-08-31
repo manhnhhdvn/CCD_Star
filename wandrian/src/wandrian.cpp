@@ -110,8 +110,9 @@ void Wandrian::wandrian_run() {
         boost::bind(&Wandrian::boustrophedon_go_to, this, _1, _2));
     boustrophedon->cover();
   } else if (robot->get_plan_name() == "ccds") {
-    CCDStarPtr ccds = CCDStarPtr(new CCDStar());
+//    CCDStarPtr ccds = CCDStarPtr(new CCDStar());
     plan = CCDStarPtr(new CCDStar());
+    CCDStarPtr ccds = boost::static_pointer_cast<CCDStar>(plan);
     ccds->initialize(
         PointPtr(
             new Point(robot->get_starting_point_x(),

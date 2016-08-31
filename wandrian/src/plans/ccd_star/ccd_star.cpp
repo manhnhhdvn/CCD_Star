@@ -18,6 +18,7 @@ CCDStar::~CCDStar() {
 }
 
 void CCDStar::initialize(PointPtr starting_point, double tool_size) {
+  path.clear();
   this->tool_size = tool_size;
   this->cell_size = tool_size / (2 * MR + 1);
   starting_cell = CellPtr(
@@ -167,7 +168,7 @@ void CCDStar::scan(CellPtr current_cell) {
       std::cout << "End compute direction\n";
 //      go_to((*next_cell)->get_center(), STRICTLY);
 //      go_with(current_cell->get_center(), direction, tool_size);
-      path.insert(path.end(), current_cell->get_center());
+//      path.insert(path.end(), current_cell->get_center());
 //      go_with(direction, tool_size);
       if (see_obstacle(direction, tool_size / 2)) { // Obstacle
         std::cout << "Obstacle\n";
@@ -625,13 +626,13 @@ void CCDStar::set_behavior_see_obstacle(
 }
 
 bool CCDStar::go_to(PointPtr position, bool flexibility) {
-  std::cout << "    pos: " << position->x << "," << position->y;
-  return BasePlan::go_to(position, flexibility);
 //  std::cout << "    pos: " << position->x << "," << position->y;
-//  path.insert(path.end(), position);
-//  if (behavior_go_to)
-//    return behavior_go_to(position, flexibility);
-//  return true;
+//  return BasePlan::go_to(position, flexibility);
+  std::cout << "    pos: " << position->x << "," << position->y;
+  path.insert(path.end(), position);
+  if (behavior_go_to)
+    return behavior_go_to(position, flexibility);
+  return true;
 }
 
 bool CCDStar::see_obstacle(VectorPtr direction, double distance) {
