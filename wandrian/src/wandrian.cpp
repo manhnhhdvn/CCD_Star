@@ -111,6 +111,7 @@ void Wandrian::wandrian_run() {
     boustrophedon->cover();
   } else if (robot->get_plan_name() == "ccds") {
     CCDStarPtr ccds = CCDStarPtr(new CCDStar());
+    plan = CCDStarPtr(new CCDStar());
     ccds->initialize(
         PointPtr(
             new Point(robot->get_starting_point_x(),
@@ -118,8 +119,7 @@ void Wandrian::wandrian_run() {
     ccds->set_behavior_go_to(
         boost::bind(&Wandrian::ccdstar_go_to, this, _1, _2));
     ccds->set_behavior_see_obstacle(
-            boost::bind(&Wandrian::ccdstar_see_obstacle, this, _1,
-                _2));
+        boost::bind(&Wandrian::ccdstar_see_obstacle, this, _1, _2));
     ccds->cover();
   }
   robot->stop();
@@ -132,7 +132,9 @@ bool Wandrian::spiral_stc_go_to(PointPtr position, bool flexibility) {
 bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
   RectanglePtr boundary;
   std::list<RectanglePtr> obstacles;
+  std::cout << "Called here\n";
   PointPtr last_position = plan->get_path().back();
+  std::cout << "Last of path plan: x = " << last_position->x << " - y = " << last_position->y << "\n";
   PointPtr new_position = last_position + direction * distance;
   if (robot->get_map_name() != "") { // Offline map
     MapPtr map = MapPtr(new Map(find_map_path()));
@@ -197,8 +199,7 @@ bool Wandrian::ccdstar_go_to(PointPtr position, bool flexibility) {
   return spiral_stc_go_to(position, flexibility);
 }
 
-bool Wandrian::ccdstar_see_obstacle(VectorPtr direction,
-    double distance) {
+bool Wandrian::ccdstar_see_obstacle(VectorPtr direction, double distance) {
   return spiral_stc_see_obstacle(direction, distance);
 }
 

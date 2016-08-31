@@ -70,6 +70,7 @@ void SpiralStc::scan(CellPtr current) {
       << current->get_center()->x << "," << current->get_center()->y << "\n";
   VectorPtr direction = (current->get_parent()->get_center()
       - current->get_center()) / 2 / tool_size;
+  std::cout << "x: " << direction->x << " y: " << direction->y << "\n";
   VectorPtr initial_direction = direction++;
   // While current cell has a new obstacle-free neighboring cell
   bool is_starting_cell = current == starting_cell;
