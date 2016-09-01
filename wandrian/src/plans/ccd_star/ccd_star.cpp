@@ -173,17 +173,43 @@ void CCDStar::scan(CellPtr current_cell) {
       if (see_obstacle(direction, tool_size / 2)) { // Obstacle
         std::cout << "Obstacle\n";
 //        d_star(current_cell, D_STAR, FIRST_CALL);
-        //FIXME Must tick this cell is obstacle
+
+        for (std::list<CellPtr>::iterator item = list_cells.begin();
+            item != list_cells.end(); ++item) {
+          // Mark this cell is obstacle
+          if ((*item)->get_center()->x == current_cell->get_center()->x
+              && (*item)->get_center()->y == current_cell->get_center()->y) {
+            (*item)->set_cost_d_star(std::numeric_limits<double>::infinity());
+            (*item)->set_cost_d_star_extra(
+                std::numeric_limits<double>::infinity());
+          }
+          // Mark other cell, which is not visited_r and overlapped_r is not visit and not overlapped
+          if ((*item)->get_overlapped_r() == false) {
+            (*item)->set_overlapped(false);
+          }
+          if ((*item)->get_visited_r() == false) {
+            (*item)->set_visited(false);
+          }
+        }
+        stop_robot();
         scan(current_cell);
         return;
       } else {
         std::cout << "Go\n";
-        current_cell->set_visited_r(true);
-        current_cell->set_overlapped_r(true);
-//      go_to((*next_cell)->get_center(), STRICTLY);
-        go_with(direction, tool_size);
-//        current_cell = (*next_cell);
 
+//        current_cell->set_visited_r(true);
+//        current_cell->set_overlapped_r(true);
+
+        for (std::list<CellPtr>::iterator item = list_cells.begin();
+            item != list_cells.end(); ++item) {
+          if ((*item)->get_center()->x == current_cell->get_center()->x
+              && (*item)->get_center()->y == current_cell->get_center()->y) {
+            (*item)->set_visited_r(true);
+            (*item)->set_overlapped_r(true);
+          }
+        }
+
+        go_with(direction, tool_size);
         current_cell = CellPtr(
             new Cell(
                 PointPtr(
@@ -205,6 +231,7 @@ void CCDStar::scan(CellPtr current_cell) {
       }
     }
   }
+  return;
 }
 
 void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
@@ -623,6 +650,10 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 void CCDStar::set_behavior_see_obstacle(
     boost::function<bool(VectorPtr, double)> behavior_see_obstacle) {
   this->behavior_see_obstacle = behavior_see_obstacle;
+}
+
+void CCDStar::set_behavior_stop_robot(boost::function<void()> stop_robot){
+  this->stop_robot = stop_robot;
 }
 
 bool CCDStar::go_to(PointPtr position, bool flexibility) {

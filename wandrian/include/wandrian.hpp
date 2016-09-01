@@ -29,6 +29,7 @@ private:
 
   // Behaviors
   void wandrian_run();
+  void stop_robot();
 
   bool spiral_stc_go_to(PointPtr, bool);
   bool spiral_stc_see_obstacle(VectorPtr, double);
