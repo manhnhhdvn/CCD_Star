@@ -52,7 +52,7 @@ void CCDStar::initialize(PointPtr starting_point, double tool_size) {
         temp_cell->set_parent(temp_cell);
         temp_cell->set_backpoint_d_star_extra(temp_cell);
         temp_cell->set_check_d_star_extra(false);
-        if (check_exist(temp_cell) == false) {
+        if (check_exist_obstacle(temp_cell) == false) {
           list_cells.push_back(temp_cell);
           count_cell++;
         }
@@ -75,7 +75,7 @@ void CCDStar::initialize(PointPtr starting_point, double tool_size) {
         temp_cell->set_parent(temp_cell);
         temp_cell->set_backpoint_d_star_extra(temp_cell);
         temp_cell->set_check_d_star_extra(false);
-        if (check_exist(temp_cell) == false) {
+        if (check_exist_obstacle(temp_cell) == false) {
           list_cells.push_back(temp_cell);
           count_cell++;
         }
@@ -98,7 +98,7 @@ void CCDStar::initialize(PointPtr starting_point, double tool_size) {
         temp_cell->set_parent(temp_cell);
         temp_cell->set_backpoint_d_star_extra(temp_cell);
         temp_cell->set_check_d_star_extra(false);
-        if (check_exist(temp_cell) == false) {
+        if (check_exist_obstacle(temp_cell) == false) {
           list_cells.push_back(temp_cell);
           count_cell++;
         }
@@ -121,7 +121,7 @@ void CCDStar::initialize(PointPtr starting_point, double tool_size) {
         temp_cell->set_parent(temp_cell);
         temp_cell->set_backpoint_d_star_extra(temp_cell);
         temp_cell->set_check_d_star_extra(false);
-        if (check_exist(temp_cell) == false) {
+        if (check_exist_obstacle(temp_cell) == false) {
           list_cells.push_back(temp_cell);
           count_cell++;
         }
@@ -134,12 +134,15 @@ void CCDStar::initialize(PointPtr starting_point, double tool_size) {
   path.insert(path.end(), starting_point);
 }
 
-bool CCDStar::check_exist(CellPtr cell) {
+bool CCDStar::check_exist_obstacle(CellPtr cell) {
   for (std::list<CellPtr>::iterator item = list_cells.begin();
       item != list_cells.end(); ++item) {
     if ((*item)->get_center()->x == cell->get_center()->x
         && (*item)->get_center()->y == cell->get_center()->y) {
-      return true;
+      if ((*item)->get_cost_d_star() == INFINITY_COST
+          && (*item)->get_cost_d_star_extra() == INFINITY_COST) {
+        return true;
+      }
     }
   }
   return false;
@@ -173,28 +176,66 @@ void CCDStar::scan(CellPtr current_cell) {
       if (see_obstacle(direction, tool_size / 2)) { // Obstacle
         std::cout << "Obstacle\n";
 //        d_star(current_cell, D_STAR, FIRST_CALL);
+        if (!check_exist_obstacle((*next_cell))) {
+          for (std::list<CellPtr>::iterator item = list_cells.begin();
+              item != list_cells.end(); ++item) {
+            // Mark this cell is obstacle
+            if ((*item)->get_center()->x == (*next_cell)->get_center()->x
+                && (*item)->get_center()->y == (*next_cell)->get_center()->y) {
+              (*item)->set_cost_d_star(INFINITY_COST);
+              (*item)->set_cost_d_star_extra(
+              INFINITY_COST);
+            }
+            // Mark other cell, which is not visited_r and overlapped_r is not visit and not overlapped
+            if ((*item)->get_overlapped_r() == false) {
+              (*item)->set_overlapped(false);
+            }
+            if ((*item)->get_visited_r() == false) {
+              (*item)->set_visited(false);
+            }
+          }
+          stop_robot();
+//        sleep(2);
+          scan(current_cell);
+          return;
+        } else {
+          // Go normal because backtracking
+          std::cout << "Go\n";
 
-        for (std::list<CellPtr>::iterator item = list_cells.begin();
-            item != list_cells.end(); ++item) {
-          // Mark this cell is obstacle
-          if ((*item)->get_center()->x == current_cell->get_center()->x
-              && (*item)->get_center()->y == current_cell->get_center()->y) {
-            (*item)->set_cost_d_star(std::numeric_limits<double>::infinity());
-            (*item)->set_cost_d_star_extra(
-                std::numeric_limits<double>::infinity());
+          //        current_cell->set_visited_r(true);
+          //        current_cell->set_overlapped_r(true);
+
+          for (std::list<CellPtr>::iterator item = list_cells.begin();
+              item != list_cells.end(); ++item) {
+            if ((*item)->get_center()->x == current_cell->get_center()->x
+                && (*item)->get_center()->y == current_cell->get_center()->y) {
+              (*item)->set_visited_r(true);
+              (*item)->set_overlapped_r(true);
+            }
           }
-          // Mark other cell, which is not visited_r and overlapped_r is not visit and not overlapped
-          if ((*item)->get_overlapped_r() == false) {
-            (*item)->set_overlapped(false);
-          }
-          if ((*item)->get_visited_r() == false) {
-            (*item)->set_visited(false);
-          }
+
+          go_with(direction, tool_size);
+          current_cell = CellPtr(
+              new Cell(
+                  PointPtr(
+                      new Point((*next_cell)->get_center()->x,
+                          (*next_cell)->get_center()->y)), cell_size));
+          current_cell->set_cost_d_star((*next_cell)->get_cost_d_star());
+          current_cell->set_cost_d_star_extra(
+              (*next_cell)->get_cost_d_star_extra());
+          current_cell->set_parent((*next_cell)->get_parent());
+          current_cell->set_backpoint_d_star_extra(
+              (*next_cell)->get_backpoint_d_star_extra());
+          current_cell->set_check_d_star_extra(
+              (*next_cell)->get_check_d_star_extra());
+          current_cell->set_overlapped((*next_cell)->get_overlapped());
+          current_cell->set_overlapped_r((*next_cell)->get_overlapped_r());
+          current_cell->set_visited((*next_cell)->get_visited());
+          current_cell->set_visited_r((*next_cell)->get_visited_r());
+
         }
-        stop_robot();
-        scan(current_cell);
-        return;
       } else {
+        // Go normal
         std::cout << "Go\n";
 
 //        current_cell->set_visited_r(true);
@@ -248,6 +289,7 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
   if (check_d_star == D_STAR && check_first_call == FIRST_CALL) {
     list_path.clear();
   } else if (check_d_star == D_STAR_EXTRA && check_first_call == FIRST_CALL) {
+    list_path_d_star_extra.clear();
     for (std::list<CellPtr>::iterator item = list_cells.begin();
         item != list_cells.end(); ++item) {
       (*item)->set_check_d_star_extra(false);
@@ -276,18 +318,23 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
       }
       std::cout << tmp_cost << "\n";
       if (check_d_star == D_STAR) {
-        if ((*item)->get_cost_d_star()
-            != std::numeric_limits<double>::infinity()
-            && (*item)->get_cost_d_star_extra()
-                != std::numeric_limits<double>::infinity()) {
+        if ((*item)->get_cost_d_star() != INFINITY_COST
+            && (*item)->get_cost_d_star_extra() != INFINITY_COST) {
           (*item)->set_cost_d_star(tmp_cost);
         }
+        //FIXME: clear me
+        else {
+          std::cout << "Infinity cost\n";
+//          sleep(2);
+        }
       } else if (check_d_star == D_STAR_EXTRA) {
-        if ((*item)->get_cost_d_star()
-            != std::numeric_limits<double>::infinity()
-            && (*item)->get_cost_d_star_extra()
-                != std::numeric_limits<double>::infinity()) {
+        if ((*item)->get_cost_d_star() != INFINITY_COST
+            && (*item)->get_cost_d_star_extra() != INFINITY_COST) {
           (*item)->set_cost_d_star_extra(tmp_cost);
+        } //FIXME: clear me
+        else {
+          std::cout << "Infinity cost\n";
+//          sleep(2);
         }
       }
     }
@@ -448,12 +495,16 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
   if (check_d_star == D_STAR) {
     list_neighbors.clear();
     if (neighbor_up->get_center()->x != 100) {
-      if (neighbor_up->get_cost_d_star()
-          != std::numeric_limits<double>::infinity()
-          && neighbor_up->get_cost_d_star_extra()
-              != std::numeric_limits<double>::infinity()
+      if (neighbor_up->get_cost_d_star() != INFINITY_COST
+          && neighbor_up->get_cost_d_star_extra() != INFINITY_COST
           && neighbor_up->get_visited() == false
           && neighbor_up->get_visited_r() == false) { // No obstacle and no visited
+          //FIXME
+//      if (neighbor_up->get_cost_d_star()
+//          != INFINITY
+//          && neighbor_up->get_cost_d_star_extra()
+//              != INFINITY
+//          && neighbor_up->get_visited() == false) { // No obstacle and no visited
 
         std::cout << "Neighbor up: " << neighbor_up->get_center()->x << " "
             << neighbor_up->get_center()->y << " "
@@ -463,12 +514,16 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
       }
     }
     if (neighbor_down->get_center()->x != 100) {
-      if (neighbor_down->get_cost_d_star()
-          != std::numeric_limits<double>::infinity()
-          && neighbor_down->get_cost_d_star_extra()
-              != std::numeric_limits<double>::infinity()
+      if (neighbor_down->get_cost_d_star() != INFINITY_COST
+          && neighbor_down->get_cost_d_star_extra() != INFINITY_COST
           && neighbor_down->get_visited() == false
           && neighbor_down->get_visited_r() == false) { // No obstacle and no visited
+          //FIXME
+//      if (neighbor_down->get_cost_d_star()
+//          != INFINITY
+//          && neighbor_down->get_cost_d_star_extra()
+//              != INFINITY
+//          && neighbor_down->get_visited() == false) { // No obstacle and no visited
 
         std::cout << "Neighbor down: " << neighbor_down->get_center()->x << " "
             << neighbor_down->get_center()->y << " "
@@ -478,12 +533,16 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
       }
     }
     if (neighbor_left->get_center()->x != 100) {
-      if (neighbor_left->get_cost_d_star()
-          != std::numeric_limits<double>::infinity()
-          && neighbor_left->get_cost_d_star_extra()
-              != std::numeric_limits<double>::infinity()
+      if (neighbor_left->get_cost_d_star() != INFINITY_COST
+          && neighbor_left->get_cost_d_star_extra() != INFINITY_COST
           && neighbor_left->get_visited() == false
           && neighbor_left->get_visited_r() == false) { // No obstacle and no visited
+          //FIXME
+//      if (neighbor_left->get_cost_d_star()
+//          != INFINITY
+//          && neighbor_left->get_cost_d_star_extra()
+//              != INFINITY
+//          && neighbor_left->get_visited() == false) { // No obstacle and no visited
 
         std::cout << "Neighbor left: " << neighbor_left->get_center()->x << " "
             << neighbor_left->get_center()->y << " "
@@ -493,12 +552,16 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
       }
     }
     if (neighbor_right->get_center()->x != 100) {
-      if (neighbor_right->get_cost_d_star()
-          != std::numeric_limits<double>::infinity()
-          && neighbor_right->get_cost_d_star_extra()
-              != std::numeric_limits<double>::infinity()
+      if (neighbor_right->get_cost_d_star() != INFINITY_COST
+          && neighbor_right->get_cost_d_star_extra() != INFINITY_COST
           && neighbor_right->get_visited() == false
           && neighbor_right->get_visited_r() == false) { // No obstacle and no visited
+          //FIXME
+//      if (neighbor_right->get_cost_d_star()
+//          != INFINITY
+//          && neighbor_right->get_cost_d_star_extra()
+//              != INFINITY
+//          && neighbor_right->get_visited() == false) { // No obstacle and no visited
 
         std::cout << "Neighbor right: " << neighbor_right->get_center()->x
             << " " << neighbor_right->get_center()->y << " "
@@ -553,53 +616,103 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
     }
   } else {
     std::cout << "Start d star extra\n";
-    current_cell->set_check_d_star_extra(true);
-    if (neighbor_up->get_cost_d_star()
-        != std::numeric_limits<double>::infinity()
-        && neighbor_up->get_cost_d_star_extra()
-            != std::numeric_limits<double>::infinity()
-        && neighbor_up->get_visited_r() == false) { // No obstacle and no visited with robot
+//    current_cell->set_check_d_star_extra(true);
+
+    for (std::list<CellPtr>::iterator item = list_cells.begin();
+        item != list_cells.end(); ++item) {
+      if ((*item)->get_center()->x == current_cell->get_center()->x
+          && (*item)->get_center()->y == current_cell->get_center()->y) {
+        (*item)->set_check_d_star_extra(true);
+      }
+    }
+
+//    if (neighbor_up->get_cost_d_star() != INFINITY
+//        && neighbor_up->get_cost_d_star_extra() != INFINITY
+//        && neighbor_up->get_visited_r() == false) { // No obstacle and no visited with robot
+    //FIXME
+    if (neighbor_up->get_cost_d_star() != INFINITY_COST
+        && neighbor_up->get_cost_d_star_extra() != INFINITY_COST) { // No obstacle and no visited with robot
+
       if (neighbor_up->get_visited() == false) {
-        list_path.push_back(neighbor_up);
+        list_path_d_star_extra.push_back(neighbor_up);
+
+        //TODO
+        for (std::list<CellPtr>::iterator item_path =
+            list_path_d_star_extra.begin();
+            item_path != list_path_d_star_extra.end(); ++item_path) {
+          list_path.push_back((*item_path));
+        }
+        list_path_d_star_extra.clear();
+
         return;
 //          break;
       } else if (neighbor_up->get_check_d_star_extra() == false) {
         list_neighbors.push_back(neighbor_up);
       }
     }
-    if (neighbor_down->get_cost_d_star()
-        != std::numeric_limits<double>::infinity()
-        && neighbor_down->get_cost_d_star_extra()
-            != std::numeric_limits<double>::infinity()
-        && neighbor_down->get_visited_r() == false) { // No obstacle and no visited with robot
+//    if (neighbor_down->get_cost_d_star() != INFINITY
+//        && neighbor_down->get_cost_d_star_extra() != INFINITY
+//        && neighbor_down->get_visited_r() == false) { // No obstacle and no visited with robot
+    //FIXME
+    if (neighbor_down->get_cost_d_star() != INFINITY_COST
+        && neighbor_down->get_cost_d_star_extra() != INFINITY_COST) { // No obstacle and no visited with robot
       if (neighbor_down->get_visited() == false) {
-        list_path.push_back(neighbor_down);
+        list_path_d_star_extra.push_back(neighbor_down);
+
+        //TODO
+        for (std::list<CellPtr>::iterator item_path =
+            list_path_d_star_extra.begin();
+            item_path != list_path_d_star_extra.end(); ++item_path) {
+          list_path.push_back((*item_path));
+        }
+        list_path_d_star_extra.clear();
+
         return;
 //          break;
       } else if (neighbor_down->get_check_d_star_extra() == false) {
         list_neighbors.push_back(neighbor_down);
       }
     }
-    if (neighbor_left->get_cost_d_star()
-        != std::numeric_limits<double>::infinity()
-        && neighbor_left->get_cost_d_star_extra()
-            != std::numeric_limits<double>::infinity()
-        && neighbor_left->get_visited_r() == false) { // No obstacle and no visited with robot
+//    if (neighbor_left->get_cost_d_star() != INFINITY
+//        && neighbor_left->get_cost_d_star_extra() != INFINITY
+//        && neighbor_left->get_visited_r() == false) { // No obstacle and no visited with robot
+    //FIXME
+    if (neighbor_left->get_cost_d_star() != INFINITY_COST
+        && neighbor_left->get_cost_d_star_extra() != INFINITY_COST) { // No obstacle and no visited with robot
       if (neighbor_left->get_visited() == false) {
-        list_path.push_back(neighbor_left);
+        list_path_d_star_extra.push_back(neighbor_left);
+
+        //TODO
+        for (std::list<CellPtr>::iterator item_path =
+            list_path_d_star_extra.begin();
+            item_path != list_path_d_star_extra.end(); ++item_path) {
+          list_path.push_back((*item_path));
+        }
+        list_path_d_star_extra.clear();
+
         return;
 //          break;
       } else if (neighbor_left->get_check_d_star_extra() == false) {
         list_neighbors.push_back(neighbor_left);
       }
     }
-    if (neighbor_right->get_cost_d_star()
-        != std::numeric_limits<double>::infinity()
-        && neighbor_right->get_cost_d_star_extra()
-            != std::numeric_limits<double>::infinity()
-        && neighbor_right->get_visited_r() == false) { // No obstacle and no visited with robot
+//    if (neighbor_right->get_cost_d_star() != INFINITY
+//        && neighbor_right->get_cost_d_star_extra() != INFINITY
+//        && neighbor_right->get_visited_r() == false) { // No obstacle and no visited with robot
+    //FIXME
+    if (neighbor_right->get_cost_d_star() != INFINITY_COST
+        && neighbor_right->get_cost_d_star_extra() != INFINITY_COST) { // No obstacle and no visited with robot
       if (neighbor_right->get_visited() == false) {
-        list_path.push_back(neighbor_right);
+        list_path_d_star_extra.push_back(neighbor_right);
+
+        //TODO
+        for (std::list<CellPtr>::iterator item_path =
+            list_path_d_star_extra.begin();
+            item_path != list_path_d_star_extra.end(); ++item_path) {
+          list_path.push_back((*item_path));
+        }
+        list_path_d_star_extra.clear();
+
         return;
 //          break;
       } else if (neighbor_right->get_check_d_star_extra() == false) {
@@ -611,8 +724,8 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
       return;
     } else {
       double min_cost = -1;
-      for (std::list<CellPtr>::iterator item_neighbor = list_cells.begin();
-          item_neighbor != list_cells.end(); ++item_neighbor) {
+      for (std::list<CellPtr>::iterator item_neighbor = list_neighbors.begin();
+          item_neighbor != list_neighbors.end(); ++item_neighbor) {
         if (min_cost == -1
             || min_cost > (*item_neighbor)->get_cost_d_star_extra()) {
           min_cost = (*item_neighbor)->get_cost_d_star_extra();
@@ -637,7 +750,7 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
         }
       }
       current_cell->set_backpoint_d_star_extra(backpoint);
-      list_path.push_back(current_cell);
+      list_path_d_star_extra.push_back(current_cell);
       d_star(backpoint, D_STAR_EXTRA, SECOND_CALL);
 //        break;
       return;
@@ -652,7 +765,7 @@ void CCDStar::set_behavior_see_obstacle(
   this->behavior_see_obstacle = behavior_see_obstacle;
 }
 
-void CCDStar::set_behavior_stop_robot(boost::function<void()> stop_robot){
+void CCDStar::set_behavior_stop_robot(boost::function<void()> stop_robot) {
   this->stop_robot = stop_robot;
 }
 

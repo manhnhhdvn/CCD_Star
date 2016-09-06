@@ -14,6 +14,7 @@
 #define D_STAR_EXTRA false
 #define FIRST_CALL true
 #define SECOND_CALL false
+#define INFINITY_COST 10000
 
 #include "../../common/vector.hpp"
 #include "../../environment/cell.hpp"
@@ -36,7 +37,7 @@ public:
 	void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 	void set_behavior_stop_robot(boost::function<void()>);
 	void d_star(CellPtr, bool, bool);
-	bool check_exist(CellPtr);
+	bool check_exist_obstacle(CellPtr);
 	int count;
   void cover();
 
@@ -46,6 +47,7 @@ protected:
 	double cell_size; // other_name: ecell, tool_size = (2*MR + 1)*ecell
 	std::list<CellPtr> list_cells;
 	std::list<CellPtr> list_path;
+	std::list<CellPtr> list_path_d_star_extra;
 	bool go_to(PointPtr, bool = STRICTLY);
 	bool see_obstacle(VectorPtr, double);
 	virtual void scan(CellPtr);
