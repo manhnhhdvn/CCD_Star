@@ -32,14 +32,22 @@ Vector::Vector(const VectorPtr vector) :
 
 void Vector::rotate_counterclockwise() {
   double d = x;
-  x = -y;
+  if (y == 0) {
+    x = 0;
+  } else {
+    x = -y;
+  }
   y = d;
 }
 
 void Vector::rotate_clockwise() {
   double d = x;
   x = y;
-  y = -d;
+  if (d == 0) {
+    y = 0;
+  } else {
+    y = -d;
+  }
 }
 
 double Vector::get_magnitude() {

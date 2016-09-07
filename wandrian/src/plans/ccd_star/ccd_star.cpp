@@ -167,16 +167,142 @@ void CCDStar::scan(CellPtr current_cell) {
       std::cout << "Start compute direction\n";
       VectorPtr direction = ((*next_cell)->get_center()
           - current_cell->get_center()) / tool_size;
-      std::cout << "x: " << direction->x << " y: " << direction->y << "\n";
+      VectorPtr temp = direction;
+      VectorPtr right_direction = temp++;
+      VectorPtr behind_direction = temp++;
+      VectorPtr left_direction = temp++;
+      std::cout << "Direction: " << "x: " << direction->x << " y: "
+          << direction->y << "\n";
+      std::cout << "right_direction: " << "x: " << right_direction->x << " y: "
+          << right_direction->y << "\n";
+      std::cout << "behind_direction: " << "x: " << behind_direction->x
+          << " y: " << behind_direction->y << "\n";
+      std::cout << "left_direction: " << "x: " << left_direction->x << " y: "
+          << left_direction->y << "\n";
+//      VectorPtr left_direction = direction--;
+//      VectorPtr behind_direction = left_direction--;
+//      VectorPtr right_direction = behind_direction--;
       std::cout << "End compute direction\n";
-//      go_to((*next_cell)->get_center(), STRICTLY);
-//      go_with(current_cell->get_center(), direction, tool_size);
-//      path.insert(path.end(), current_cell->get_center());
-//      go_with(direction, tool_size);
+
+      // Check right
+      std::cout << "Check right\n";
+      if (see_obstacle(right_direction, tool_size / 2)) { // Obstacle
+        std::cout << "Obstacle\n";
+        //        d_star(current_cell, D_STAR, FIRST_CALL);
+        CellPtr right_cell = CellPtr(
+            new Cell(current_cell->get_center() + right_direction * cell_size,
+                cell_size));
+
+        if (!check_exist_obstacle(right_cell)) {
+          for (std::list<CellPtr>::iterator item = list_cells.begin();
+              item != list_cells.end(); ++item) {
+            // Mark this cell is obstacle
+            if ((*item)->get_center()->x == right_cell->get_center()->x
+                && (*item)->get_center()->y == right_cell->get_center()->y) {
+              (*item)->set_cost_d_star(INFINITY_COST);
+              (*item)->set_cost_d_star_extra(
+              INFINITY_COST);
+            }
+            // Mark other cell, which is not visited_r and overlapped_r is not visit and not overlapped
+            // FIXME
+//            if ((*item)->get_overlapped_r() == false) {
+//              (*item)->set_overlapped(false);
+//            }
+//            if ((*item)->get_visited_r() == false) {
+//              (*item)->set_visited(false);
+//            }
+          }
+//          stop_robot();
+////                  sleep(2);
+//          scan(current_cell);
+//          return;
+        } else {
+          // Go normal
+        }
+      }
+      // End check right
+
+      // Check behind
+      std::cout << "Check behind\n";
+      if (see_obstacle(behind_direction, tool_size / 2)) { // Obstacle
+        std::cout << "Obstacle\n";
+        //        d_star(current_cell, D_STAR, FIRST_CALL);
+        CellPtr behind_cell = CellPtr(
+            new Cell(current_cell->get_center() + behind_direction * cell_size,
+                cell_size));
+
+        if (!check_exist_obstacle(behind_cell)) {
+          for (std::list<CellPtr>::iterator item = list_cells.begin();
+              item != list_cells.end(); ++item) {
+            // Mark this cell is obstacle
+            if ((*item)->get_center()->x == behind_cell->get_center()->x
+                && (*item)->get_center()->y == behind_cell->get_center()->y) {
+              (*item)->set_cost_d_star(INFINITY_COST);
+              (*item)->set_cost_d_star_extra(
+              INFINITY_COST);
+            }
+            // Mark other cell, which is not visited_r and overlapped_r is not visit and not overlapped
+            //FIXME
+//            if ((*item)->get_overlapped_r() == false) {
+//              (*item)->set_overlapped(false);
+//            }
+//            if ((*item)->get_visited_r() == false) {
+//              (*item)->set_visited(false);
+//            }
+          }
+//          stop_robot();
+//          //        sleep(2);
+//          scan(current_cell);
+//          return;
+        } else {
+          // Go normal
+        }
+      }
+      // End check behind
+
+      // Check left
+      std::cout << "Check left\n";
+      if (see_obstacle(left_direction, tool_size / 2)) { // Obstacle
+        std::cout << "Obstacle\n";
+        //        d_star(current_cell, D_STAR, FIRST_CALL);
+        CellPtr left_cell = CellPtr(
+            new Cell(current_cell->get_center() + left_direction * cell_size,
+                cell_size));
+
+        if (!check_exist_obstacle(left_cell)) {
+          for (std::list<CellPtr>::iterator item = list_cells.begin();
+              item != list_cells.end(); ++item) {
+            // Mark this cell is obstacle
+            if ((*item)->get_center()->x == left_cell->get_center()->x
+                && (*item)->get_center()->y == left_cell->get_center()->y) {
+              (*item)->set_cost_d_star(INFINITY_COST);
+              (*item)->set_cost_d_star_extra(
+              INFINITY_COST);
+            }
+            // Mark other cell, which is not visited_r and overlapped_r is not visit and not overlapped
+            //FIXME
+//            if ((*item)->get_overlapped_r() == false) {
+//              (*item)->set_overlapped(false);
+//            }
+//            if ((*item)->get_visited_r() == false) {
+//              (*item)->set_visited(false);
+//            }
+          }
+//          stop_robot();
+//          //        sleep(2);
+//          scan(current_cell);
+//          return;
+        } else {
+          // Go normal
+        }
+      }
+      // End check left
+      // Check front
+      std::cout << "Check front\n";
       if (see_obstacle(direction, tool_size / 2)) { // Obstacle
         std::cout << "Obstacle\n";
 //        d_star(current_cell, D_STAR, FIRST_CALL);
-        if (!check_exist_obstacle((*next_cell))) {
+//        if (!check_exist_obstacle((*next_cell))) {
           for (std::list<CellPtr>::iterator item = list_cells.begin();
               item != list_cells.end(); ++item) {
             // Mark this cell is obstacle
@@ -187,6 +313,7 @@ void CCDStar::scan(CellPtr current_cell) {
               INFINITY_COST);
             }
             // Mark other cell, which is not visited_r and overlapped_r is not visit and not overlapped
+            //FIXME
             if ((*item)->get_overlapped_r() == false) {
               (*item)->set_overlapped(false);
             }
@@ -198,78 +325,46 @@ void CCDStar::scan(CellPtr current_cell) {
 //        sleep(2);
           scan(current_cell);
           return;
-        } else {
-          // Go normal because backtracking
-          std::cout << "Go\n";
+//        } else{
+//          // Go normal
+//        }
+      }
+      // End check front
 
-          //        current_cell->set_visited_r(true);
-          //        current_cell->set_overlapped_r(true);
-
-          for (std::list<CellPtr>::iterator item = list_cells.begin();
-              item != list_cells.end(); ++item) {
-            if ((*item)->get_center()->x == current_cell->get_center()->x
-                && (*item)->get_center()->y == current_cell->get_center()->y) {
-              (*item)->set_visited_r(true);
-              (*item)->set_overlapped_r(true);
-            }
-          }
-
-          go_with(direction, tool_size);
-          current_cell = CellPtr(
-              new Cell(
-                  PointPtr(
-                      new Point((*next_cell)->get_center()->x,
-                          (*next_cell)->get_center()->y)), cell_size));
-          current_cell->set_cost_d_star((*next_cell)->get_cost_d_star());
-          current_cell->set_cost_d_star_extra(
-              (*next_cell)->get_cost_d_star_extra());
-          current_cell->set_parent((*next_cell)->get_parent());
-          current_cell->set_backpoint_d_star_extra(
-              (*next_cell)->get_backpoint_d_star_extra());
-          current_cell->set_check_d_star_extra(
-              (*next_cell)->get_check_d_star_extra());
-          current_cell->set_overlapped((*next_cell)->get_overlapped());
-          current_cell->set_overlapped_r((*next_cell)->get_overlapped_r());
-          current_cell->set_visited((*next_cell)->get_visited());
-          current_cell->set_visited_r((*next_cell)->get_visited_r());
-
-        }
-      } else {
-        // Go normal
-        std::cout << "Go\n";
+      // Go normal
+      std::cout << "Go\n";
 
 //        current_cell->set_visited_r(true);
 //        current_cell->set_overlapped_r(true);
 
-        for (std::list<CellPtr>::iterator item = list_cells.begin();
-            item != list_cells.end(); ++item) {
-          if ((*item)->get_center()->x == current_cell->get_center()->x
-              && (*item)->get_center()->y == current_cell->get_center()->y) {
-            (*item)->set_visited_r(true);
-            (*item)->set_overlapped_r(true);
-          }
+      for (std::list<CellPtr>::iterator item = list_cells.begin();
+          item != list_cells.end(); ++item) {
+        if ((*item)->get_center()->x == current_cell->get_center()->x
+            && (*item)->get_center()->y == current_cell->get_center()->y) {
+          (*item)->set_visited_r(true);
+          (*item)->set_overlapped_r(true);
         }
-
-        go_with(direction, tool_size);
-        current_cell = CellPtr(
-            new Cell(
-                PointPtr(
-                    new Point((*next_cell)->get_center()->x,
-                        (*next_cell)->get_center()->y)), cell_size));
-        current_cell->set_cost_d_star((*next_cell)->get_cost_d_star());
-        current_cell->set_cost_d_star_extra(
-            (*next_cell)->get_cost_d_star_extra());
-        current_cell->set_parent((*next_cell)->get_parent());
-        current_cell->set_backpoint_d_star_extra(
-            (*next_cell)->get_backpoint_d_star_extra());
-        current_cell->set_check_d_star_extra(
-            (*next_cell)->get_check_d_star_extra());
-        current_cell->set_overlapped((*next_cell)->get_overlapped());
-        current_cell->set_overlapped_r((*next_cell)->get_overlapped_r());
-        current_cell->set_visited((*next_cell)->get_visited());
-        current_cell->set_visited_r((*next_cell)->get_visited_r());
-
       }
+
+      go_with(direction, tool_size);
+      current_cell = CellPtr(
+          new Cell(
+              PointPtr(
+                  new Point((*next_cell)->get_center()->x,
+                      (*next_cell)->get_center()->y)), cell_size));
+      current_cell->set_cost_d_star((*next_cell)->get_cost_d_star());
+      current_cell->set_cost_d_star_extra(
+          (*next_cell)->get_cost_d_star_extra());
+      current_cell->set_parent((*next_cell)->get_parent());
+      current_cell->set_backpoint_d_star_extra(
+          (*next_cell)->get_backpoint_d_star_extra());
+      current_cell->set_check_d_star_extra(
+          (*next_cell)->get_check_d_star_extra());
+      current_cell->set_overlapped((*next_cell)->get_overlapped());
+      current_cell->set_overlapped_r((*next_cell)->get_overlapped_r());
+      current_cell->set_visited((*next_cell)->get_visited());
+      current_cell->set_visited_r((*next_cell)->get_visited_r());
+
     }
   }
   return;
@@ -316,7 +411,7 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
                         * (current_cell->get_center()->y
                             - (*item)->get_center()->y) * cell_size * 4));
       }
-      std::cout << tmp_cost << "\n";
+//      std::cout << tmp_cost << "\n";
       if (check_d_star == D_STAR) {
         if ((*item)->get_cost_d_star() != INFINITY_COST
             && (*item)->get_cost_d_star_extra() != INFINITY_COST) {
@@ -781,20 +876,13 @@ bool CCDStar::go_to(PointPtr position, bool flexibility) {
 
 bool CCDStar::see_obstacle(VectorPtr direction, double distance) {
   bool get_obstacle;
-  std::cout << "1 \n";
   if (behavior_see_obstacle) {
-    std::cout << "2 \n";
     get_obstacle = behavior_see_obstacle(direction, distance);
-    std::cout << "3 \n";
   } else {
-    std::cout << "4 \n";
     get_obstacle = false;
-    std::cout << "5 \n";
   }
   if (get_obstacle) {
-    std::cout << "6 \n";
     std::cout << "      \033[1;46m(OBSTACLE)\033[0m\n";
-    std::cout << "7 \n";
   }
   return get_obstacle;
 }

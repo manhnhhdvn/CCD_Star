@@ -138,10 +138,9 @@ void Wandrian::stop_robot() {
 bool Wandrian::spiral_stc_see_obstacle(VectorPtr direction, double distance) {
   RectanglePtr boundary;
   std::list<RectanglePtr> obstacles;
-  std::cout << "Called here\n";
   PointPtr last_position = plan->get_path().back();
-  std::cout << "Last of path plan: x = " << last_position->x << " - y = "
-      << last_position->y << "\n";
+//  std::cout << "Last of path plan: x = " << last_position->x << " - y = "
+//      << last_position->y << "\n";
   PointPtr new_position = last_position + direction * distance;
   if (robot->get_map_name() != "") { // Offline map
     MapPtr map = MapPtr(new Map(find_map_path()));
