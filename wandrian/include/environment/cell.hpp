@@ -55,8 +55,8 @@ private:
   bool visited;
   bool overlapped_r;
   bool overlapped;
-  int cost_d_star;
-  int cost_d_star_extra;
+  double cost_d_star;
+  double cost_d_star_extra;
   bool check_d_star_extra;
   boost::shared_ptr<Cell> parent;
   boost::shared_ptr<Cell> backpoint_d_star_extra;

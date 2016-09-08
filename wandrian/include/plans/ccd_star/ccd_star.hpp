@@ -12,9 +12,11 @@
 #define MR 0
 #define D_STAR true
 #define D_STAR_EXTRA false
-#define FIRST_CALL true
-#define SECOND_CALL false
-#define INFINITY_COST 10000
+#define FIRST_CALL 1
+#define SECOND_CALL 2
+#define THIRD_CALL 3
+#define FOURTH_CALL 4
+#define INFINITY_COST 100000
 
 #include "../../common/vector.hpp"
 #include "../../environment/cell.hpp"
@@ -36,7 +38,7 @@ public:
 
 	void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
 	void set_behavior_stop_robot(boost::function<void()>);
-	void d_star(CellPtr, bool, bool);
+	void d_star(CellPtr, bool, int);
 	bool check_exist_obstacle(CellPtr);
 	int count;
   void cover();
@@ -55,6 +57,7 @@ protected:
 
 private:
 	CellPtr starting_cell;
+	CellPtr cell_for_check_third_call;
 	boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
 	boost::function<void()> stop_robot;
 	bool go_with(VectorPtr, double);
