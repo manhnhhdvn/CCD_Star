@@ -374,6 +374,7 @@ void CCDStar::scan(CellPtr current_cell) {
 
     }
   }
+  std::cout << "Finish.\n";
   return;
 }
 
@@ -670,7 +671,8 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
       std::cout << "Call first call d star extra\n";
       d_star(current_cell, D_STAR_EXTRA, FIRST_CALL);   // Call D Star extra
 //        break;
-//      return;
+          //FIXME
+      return;
     } else {
       double min_cost = -1;
       for (std::list<CellPtr>::iterator item_neighbor = list_neighbors.begin();
@@ -700,8 +702,7 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //      current_cell->set_parent(backpoint);
 //      current_cell->set_overlapped(true);
 //      current_cell->set_visited(true);
-
-      //TODO
+//TODO
       for (std::list<CellPtr>::iterator item = list_cells.begin();
           item != list_cells.end(); ++item) {
         if ((*item)->get_center()->x == current_cell->get_center()->x
@@ -712,7 +713,7 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
         }
       }
 
-      list_path.push_back(current_cell);
+      list_path.push_back(backpoint);
       std::cout << "back point: " << backpoint->get_center()->x << " "
           << backpoint->get_center()->y << " " << backpoint->get_cost_d_star()
           << "\n";
@@ -722,6 +723,7 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
       return;
     }
   } else {
+    //FIXME: D star extra
     std::cout << "Start d star extra\n";
 //    current_cell->set_check_d_star_extra(true);
 
@@ -737,104 +739,144 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //        && neighbor_up->get_cost_d_star_extra() != INFINITY
 //        && neighbor_up->get_visited_r() == false) { // No obstacle and no visited with robot
     //FIXME
-    if (neighbor_up->get_cost_d_star() != INFINITY_COST
-        && neighbor_up->get_cost_d_star_extra() != INFINITY_COST) { // No obstacle and no visited with robot
+    if (neighbor_up->get_center()->x != 100) {
+      if (neighbor_up->get_cost_d_star() != INFINITY_COST
+          && neighbor_up->get_cost_d_star_extra() != INFINITY_COST) { // No obstacle and no visited with robot
 
-      if (neighbor_up->get_visited() == false) {
-        list_path_d_star_extra.push_back(neighbor_up);
+        if (neighbor_up->get_visited() == false) {
 
-        //TODO
-        for (std::list<CellPtr>::iterator item_path =
-            list_path_d_star_extra.begin();
-            item_path != list_path_d_star_extra.end(); ++item_path) {
-          list_path.push_back((*item_path));
-        }
-        list_path_d_star_extra.clear();
+          list_path_d_star_extra.push_back(neighbor_up);
 
-        return;
+          //TODO
+          for (std::list<CellPtr>::iterator item_path =
+              list_path_d_star_extra.begin();
+              item_path != list_path_d_star_extra.end(); ++item_path) {
+            list_path.push_back((*item_path));
+          }
+          list_path_d_star_extra.clear();
+
+          d_star(neighbor_up, D_STAR, SECOND_CALL);
+          return;
 //          break;
-      } else if (neighbor_up->get_check_d_star_extra() == false) {
-        list_neighbors.push_back(neighbor_up);
+        } else if (neighbor_up->get_check_d_star_extra() == false) {
+
+          std::cout << "[D Star Extra]Neighbor up: "
+              << neighbor_up->get_center()->x << " "
+              << neighbor_up->get_center()->y << " "
+              << neighbor_up->get_cost_d_star_extra() << "\n";
+
+          list_neighbors.push_back(neighbor_up);
+        }
       }
     }
 //    if (neighbor_down->get_cost_d_star() != INFINITY
 //        && neighbor_down->get_cost_d_star_extra() != INFINITY
 //        && neighbor_down->get_visited_r() == false) { // No obstacle and no visited with robot
     //FIXME
-    if (neighbor_down->get_cost_d_star() != INFINITY_COST
-        && neighbor_down->get_cost_d_star_extra() != INFINITY_COST) { // No obstacle and no visited with robot
-      if (neighbor_down->get_visited() == false) {
-        list_path_d_star_extra.push_back(neighbor_down);
+    if (neighbor_down->get_center()->x != 100) {
+      if (neighbor_down->get_cost_d_star() != INFINITY_COST
+          && neighbor_down->get_cost_d_star_extra() != INFINITY_COST) { // No obstacle and no visited with robot
+        if (neighbor_down->get_visited() == false) {
 
-        //TODO
-        for (std::list<CellPtr>::iterator item_path =
-            list_path_d_star_extra.begin();
-            item_path != list_path_d_star_extra.end(); ++item_path) {
-          list_path.push_back((*item_path));
-        }
-        list_path_d_star_extra.clear();
+          list_path_d_star_extra.push_back(neighbor_down);
 
-        return;
+          //TODO
+          for (std::list<CellPtr>::iterator item_path =
+              list_path_d_star_extra.begin();
+              item_path != list_path_d_star_extra.end(); ++item_path) {
+            list_path.push_back((*item_path));
+          }
+          list_path_d_star_extra.clear();
+
+          d_star(neighbor_down, D_STAR, SECOND_CALL);
+          return;
 //          break;
-      } else if (neighbor_down->get_check_d_star_extra() == false) {
-        list_neighbors.push_back(neighbor_down);
+        } else if (neighbor_down->get_check_d_star_extra() == false) {
+
+          std::cout << "[D Star Extra]Neighbor down: "
+              << neighbor_down->get_center()->x << " "
+              << neighbor_down->get_center()->y << " "
+              << neighbor_down->get_cost_d_star_extra() << "\n";
+
+          list_neighbors.push_back(neighbor_down);
+        }
       }
     }
 //    if (neighbor_left->get_cost_d_star() != INFINITY
 //        && neighbor_left->get_cost_d_star_extra() != INFINITY
 //        && neighbor_left->get_visited_r() == false) { // No obstacle and no visited with robot
     //FIXME
-    if (neighbor_left->get_cost_d_star() != INFINITY_COST
-        && neighbor_left->get_cost_d_star_extra() != INFINITY_COST) { // No obstacle and no visited with robot
-      if (neighbor_left->get_visited() == false) {
-        list_path_d_star_extra.push_back(neighbor_left);
+    if (neighbor_left->get_center()->x != 100) {
+      if (neighbor_left->get_cost_d_star() != INFINITY_COST
+          && neighbor_left->get_cost_d_star_extra() != INFINITY_COST) { // No obstacle and no visited with robot
+        if (neighbor_left->get_visited() == false) {
 
-        //TODO
-        for (std::list<CellPtr>::iterator item_path =
-            list_path_d_star_extra.begin();
-            item_path != list_path_d_star_extra.end(); ++item_path) {
-          list_path.push_back((*item_path));
-        }
-        list_path_d_star_extra.clear();
+          list_path_d_star_extra.push_back(neighbor_left);
 
-        return;
+          //TODO
+          for (std::list<CellPtr>::iterator item_path =
+              list_path_d_star_extra.begin();
+              item_path != list_path_d_star_extra.end(); ++item_path) {
+            list_path.push_back((*item_path));
+          }
+          list_path_d_star_extra.clear();
+
+          d_star(neighbor_left, D_STAR, SECOND_CALL);
+          return;
 //          break;
-      } else if (neighbor_left->get_check_d_star_extra() == false) {
-        list_neighbors.push_back(neighbor_left);
+        } else if (neighbor_left->get_check_d_star_extra() == false) {
+
+          std::cout << "[D Star Extra]Neighbor left: "
+              << neighbor_left->get_center()->x << " "
+              << neighbor_left->get_center()->y << " "
+              << neighbor_left->get_cost_d_star_extra() << "\n";
+
+          list_neighbors.push_back(neighbor_left);
+        }
       }
     }
 //    if (neighbor_right->get_cost_d_star() != INFINITY
 //        && neighbor_right->get_cost_d_star_extra() != INFINITY
 //        && neighbor_right->get_visited_r() == false) { // No obstacle and no visited with robot
     //FIXME
-    if (neighbor_right->get_cost_d_star() != INFINITY_COST
-        && neighbor_right->get_cost_d_star_extra() != INFINITY_COST) { // No obstacle and no visited with robot
-      if (neighbor_right->get_visited() == false) {
-        list_path_d_star_extra.push_back(neighbor_right);
+    if (neighbor_right->get_center()->x != 100) {
+      if (neighbor_right->get_cost_d_star() != INFINITY_COST
+          && neighbor_right->get_cost_d_star_extra() != INFINITY_COST) { // No obstacle and no visited with robot
+        if (neighbor_right->get_visited() == false) {
 
-        //TODO
-        for (std::list<CellPtr>::iterator item_path =
-            list_path_d_star_extra.begin();
-            item_path != list_path_d_star_extra.end(); ++item_path) {
-          list_path.push_back((*item_path));
-        }
-        list_path_d_star_extra.clear();
+          list_path_d_star_extra.push_back(neighbor_right);
 
-        return;
+          //TODO
+          for (std::list<CellPtr>::iterator item_path =
+              list_path_d_star_extra.begin();
+              item_path != list_path_d_star_extra.end(); ++item_path) {
+            list_path.push_back((*item_path));
+          }
+          list_path_d_star_extra.clear();
+
+          d_star(neighbor_right, D_STAR, SECOND_CALL);
+          return;
 //          break;
-      } else if (neighbor_right->get_check_d_star_extra() == false) {
-        list_neighbors.push_back(neighbor_right);
+        } else if (neighbor_right->get_check_d_star_extra() == false) {
+
+          std::cout << "[D Star Extra]Neighbor right: "
+              << neighbor_right->get_center()->x << " "
+              << neighbor_right->get_center()->y << " "
+              << neighbor_right->get_cost_d_star_extra() << "\n";
+
+          list_neighbors.push_back(neighbor_right);
+        }
       }
     }
     if (list_neighbors.empty() == true) {
 //        break;
       return;
     } else {
-      double min_cost = -1;
+      double min_cost = 10000;
       for (std::list<CellPtr>::iterator item_neighbor = list_neighbors.begin();
           item_neighbor != list_neighbors.end(); ++item_neighbor) {
-        if (min_cost == -1
-            || min_cost > (*item_neighbor)->get_cost_d_star_extra()) {
+        if (min_cost == 10000
+            || min_cost < (*item_neighbor)->get_cost_d_star_extra()) {
           min_cost = (*item_neighbor)->get_cost_d_star_extra();
 //            backpoint = (*item_neighbor);
           backpoint = CellPtr(
@@ -864,7 +906,8 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
           (*item)->set_backpoint_d_star_extra(backpoint);
         }
       }
-      list_path_d_star_extra.push_back(current_cell);
+      //TODO
+      list_path_d_star_extra.push_back(backpoint);
       d_star(backpoint, D_STAR_EXTRA, SECOND_CALL);
 //        break;
       return;
