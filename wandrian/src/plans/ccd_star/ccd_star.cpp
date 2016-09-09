@@ -872,11 +872,11 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //        break;
       return;
     } else {
-      double min_cost = 10000;
+      double min_cost = -1;
       for (std::list<CellPtr>::iterator item_neighbor = list_neighbors.begin();
           item_neighbor != list_neighbors.end(); ++item_neighbor) {
-        if (min_cost == 10000
-            || min_cost < (*item_neighbor)->get_cost_d_star_extra()) {
+        if (min_cost == -1
+            || min_cost > (*item_neighbor)->get_cost_d_star_extra()) {
           min_cost = (*item_neighbor)->get_cost_d_star_extra();
 //            backpoint = (*item_neighbor);
           backpoint = CellPtr(
