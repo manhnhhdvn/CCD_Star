@@ -30,19 +30,20 @@
     <param name="starting_point_x" value="$(arg starting_point_x)" type="double"/>
     <param name="starting_point_y" value="$(arg starting_point_y)" type="double"/>
     <param name="plan_name" value="$(arg plan_name)" type="string"/>
-<!--
+
     <param name="linear_velocity" value="0.2" type="double"/>
     <param name="angular_velocity" value="0.4" type="double"/>
     <param name="linear_velocity_step" value="0.2" type="double"/>
     <param name="linear_velocity_max" value="2" type="double"/>
     <param name="angular_velocity_step" value="0.4" type="double"/>
     <param name="angular_velocity_max" value="1" type="double"/>
---> 
+<!--
 	<param name="linear_velocity" value="0.4" type="double"/>
     <param name="angular_velocity" value="0.8" type="double"/>
     <param name="linear_velocity_step" value="0.4" type="double"/>
     <param name="linear_velocity_max" value="4" type="double"/>
     <param name="angular_velocity_step" value="0.8" type="double"/>
     <param name="angular_velocity_max" value="2" type="double"/>   
+--> 
   </node>
 </launch>

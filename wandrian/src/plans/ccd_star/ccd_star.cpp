@@ -405,8 +405,8 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
   if (check_first_call == FIRST_CALL) {
     for (std::list<CellPtr>::iterator item = list_cells.begin();
         item != list_cells.end(); ++item) {
-      if ((*item)->get_visited() == false
-          && (*item)->get_overlapped() == false) {
+//      if ((*item)->get_visited() == false
+//          && (*item)->get_overlapped() == false) {
         tmp_cost = sqrt(
             abs(
                 (current_cell->get_center()->x - (*item)->get_center()->x)
@@ -418,7 +418,7 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
                         * cell_size * 4
                         * (current_cell->get_center()->y
                             - (*item)->get_center()->y) * cell_size * 4));
-      }
+//      }
 //      std::cout << tmp_cost << "\n";
       if (check_d_star == D_STAR) {
         if ((*item)->get_cost_d_star() != INFINITY_COST
