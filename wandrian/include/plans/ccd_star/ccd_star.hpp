@@ -8,7 +8,7 @@
 #ifndef WANDRIAN_INCLUDE_PLANS_CCD_STAR_CCD_STAR_HPP_
 #define WANDRIAN_INCLUDE_PLANS_CCD_STAR_CCD_STAR_HPP_
 
-#define MAX_WiDTH_AND_HEIGHT 10 // (8*2+1)^2= 361 cell
+#define MAX_WiDTH_AND_HEIGHT 10 // (9*2+1)^2= 361 cell
 #define MR 0
 #define D_STAR true
 #define D_STAR_EXTRA false
@@ -40,6 +40,7 @@ public:
 	void set_behavior_stop_robot(boost::function<void()>);
 	void d_star(CellPtr, bool, int);
 	bool check_exist_obstacle(CellPtr);
+	bool check_exist(CellPtr);
 	int count;
   void cover();
 
