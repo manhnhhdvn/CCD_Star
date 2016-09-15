@@ -37,7 +37,7 @@ public:
 //	virtual void move_robot(CellPtr);
 
 	void set_behavior_see_obstacle(boost::function<bool(VectorPtr, double)>);
-	void set_behavior_stop_robot(boost::function<void()>);
+	void set_behavior_stop(boost::function<void()>);
 	void d_star(CellPtr, bool, int);
 	bool check_exist_obstacle(CellPtr);
 	bool check_exist(CellPtr);
@@ -60,7 +60,7 @@ private:
 	CellPtr starting_cell;
 	CellPtr cell_for_check_third_call;
 	boost::function<bool(VectorPtr, double)> behavior_see_obstacle;
-	boost::function<void()> stop_robot;
+	boost::function<void()> stop;
 	bool go_with(VectorPtr, double);
 };
 

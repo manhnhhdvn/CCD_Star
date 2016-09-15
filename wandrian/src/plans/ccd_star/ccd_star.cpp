@@ -273,7 +273,7 @@ void CCDStar::scan(CellPtr current_cell) {
             (*item)->set_visited(false);
           }
         }
-        stop_robot();
+        stop();
         std::cout
             << "----------------------------REPLANNING-----------------------\n";
         scan(current_cell);
@@ -827,8 +827,8 @@ void CCDStar::set_behavior_see_obstacle(
   this->behavior_see_obstacle = behavior_see_obstacle;
 }
 
-void CCDStar::set_behavior_stop_robot(boost::function<void()> stop_robot) {
-  this->stop_robot = stop_robot;
+void CCDStar::set_behavior_stop(boost::function<void()> stop) {
+  this->stop = stop;
 }
 
 bool CCDStar::go_to(PointPtr position, bool flexibility) {
