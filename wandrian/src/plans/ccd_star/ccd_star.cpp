@@ -52,7 +52,7 @@ void CCDStar::initialize(PointPtr starting_point, double tool_size) {
         temp_cell->set_parent(temp_cell);
         temp_cell->set_backpoint_d_star_extra(temp_cell);
         temp_cell->set_check_d_star_extra(false);
-        if (check_exist_obstacle(temp_cell) == false) {
+        if (check_exist(temp_cell) == false) {
           list_cells.push_back(temp_cell);
           count_cell++;
         }
@@ -75,7 +75,7 @@ void CCDStar::initialize(PointPtr starting_point, double tool_size) {
         temp_cell->set_parent(temp_cell);
         temp_cell->set_backpoint_d_star_extra(temp_cell);
         temp_cell->set_check_d_star_extra(false);
-        if (check_exist_obstacle(temp_cell) == false) {
+        if (check_exist(temp_cell) == false) {
           list_cells.push_back(temp_cell);
           count_cell++;
         }
@@ -98,13 +98,13 @@ void CCDStar::initialize(PointPtr starting_point, double tool_size) {
         temp_cell->set_parent(temp_cell);
         temp_cell->set_backpoint_d_star_extra(temp_cell);
         temp_cell->set_check_d_star_extra(false);
-        if (check_exist_obstacle(temp_cell) == false) {
+        if (check_exist(temp_cell) == false) {
           list_cells.push_back(temp_cell);
           count_cell++;
         }
       }
     }
-    for (int j = 1; j < MAX_WiDTH_AND_HEIGHT; j++) {
+    for (int j = 0; j < MAX_WiDTH_AND_HEIGHT; j++) {
       temp_cell = CellPtr(
           new Cell(
               PointPtr(
@@ -121,14 +121,14 @@ void CCDStar::initialize(PointPtr starting_point, double tool_size) {
         temp_cell->set_parent(temp_cell);
         temp_cell->set_backpoint_d_star_extra(temp_cell);
         temp_cell->set_check_d_star_extra(false);
-        if (check_exist_obstacle(temp_cell) == false) {
+        if (check_exist(temp_cell) == false) {
           list_cells.push_back(temp_cell);
           count_cell++;
         }
       }
     }
   }
-  std::cout << "Start Move, has " << count_cell << "\n";
+//  std::cout << "Start Move, has " << count_cell << "\n";
 //  sleep(2);
 //  move_robot(starting_cell);
   path.insert(path.end(), starting_point);
@@ -148,10 +148,21 @@ bool CCDStar::check_exist_obstacle(CellPtr cell) {
   return false;
 }
 
+bool CCDStar::check_exist(CellPtr cell) {
+  for (std::list<CellPtr>::iterator item = list_cells.begin();
+      item != list_cells.end(); ++item) {
+    if ((*item)->get_center()->x == cell->get_center()->x
+        && (*item)->get_center()->y == cell->get_center()->y) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void CCDStar::scan(CellPtr current_cell) {
-  std::cout << "Call D Star\n";
+  std::cout << "Call D Star\nPlanning...\n";
   d_star(current_cell, D_STAR, FIRST_CALL);
-  std::cout << "End call D Star\n";
+  std::cout << "Planned\nMoving...\n";
   for (std::list<CellPtr>::iterator next_cell = list_path.begin();
       next_cell != list_path.end(); ++next_cell) {
 
@@ -160,15 +171,15 @@ void CCDStar::scan(CellPtr current_cell) {
       continue;
     } else {
 
-      std::cout << "[Running]Current cell: " << current_cell->get_center()->x
-          << " " << current_cell->get_center()->y << "\n";
+//      std::cout << "[Running]Current cell: " << current_cell->get_center()->x
+//          << " " << current_cell->get_center()->y << "\n";
 
-      std::cout << "[Running]Current next cell: "
-          << (*next_cell)->get_center()->x << " "
-          << (*next_cell)->get_center()->y << " "
-          << (*next_cell)->get_cost_d_star() << "\n";
+//      std::cout << "[Running]Current next cell: "
+//          << (*next_cell)->get_center()->x << " "
+//          << (*next_cell)->get_center()->y << " "
+//          << (*next_cell)->get_cost_d_star() << "\n";
 
-      std::cout << "Start compute direction\n";
+//      std::cout << "Start compute direction\n";
       VectorPtr direction = ((*next_cell)->get_center()
           - current_cell->get_center()) / tool_size;
       VectorPtr temp = ((*next_cell)->get_center() - current_cell->get_center())
@@ -176,18 +187,18 @@ void CCDStar::scan(CellPtr current_cell) {
       VectorPtr right_direction = ++temp;
       VectorPtr behind_direction = temp++;
       VectorPtr left_direction = temp++;
-      std::cout << "Direction: " << "x: " << direction->x << " y: "
-          << direction->y << "\n";
-      std::cout << "right_direction: " << "x: " << right_direction->x << " y: "
-          << right_direction->y << "\n";
-      std::cout << "behind_direction: " << "x: " << behind_direction->x
-          << " y: " << behind_direction->y << "\n";
-      std::cout << "left_direction: " << "x: " << left_direction->x << " y: "
-          << left_direction->y << "\n";
+//      std::cout << "Direction: " << "x: " << direction->x << " y: "
+//          << direction->y << "\n";
+//      std::cout << "right_direction: " << "x: " << right_direction->x << " y: "
+//          << right_direction->y << "\n";
+//      std::cout << "behind_direction: " << "x: " << behind_direction->x
+//          << " y: " << behind_direction->y << "\n";
+//      std::cout << "left_direction: " << "x: " << left_direction->x << " y: "
+//          << left_direction->y << "\n";
 //      VectorPtr left_direction = direction--;
 //      VectorPtr behind_direction = left_direction--;
 //      VectorPtr right_direction = behind_direction--;
-      std::cout << "End compute direction\n";
+//      std::cout << "End compute direction\n";
 
       // Check right
       if (current_cell->get_visited_r() == false) {
@@ -229,7 +240,7 @@ void CCDStar::scan(CellPtr current_cell) {
         // End check right
 
         // Check behind
-        std::cout << "Check behind\n";
+//        std::cout << "Check behind\n";
         if (see_obstacle(behind_direction, tool_size / 2)) { // Obstacle
           std::cout << "Obstacle\n";
           //        d_star(current_cell, D_STAR, FIRST_CALL);
@@ -268,7 +279,7 @@ void CCDStar::scan(CellPtr current_cell) {
         // End check behind
 
         // Check left
-        std::cout << "Check left\n";
+//        std::cout << "Check left\n";
         if (see_obstacle(left_direction, tool_size / 2)) { // Obstacle
           std::cout << "Obstacle\n";
           //        d_star(current_cell, D_STAR, FIRST_CALL);
@@ -307,7 +318,7 @@ void CCDStar::scan(CellPtr current_cell) {
         // Check front
 
       }
-      std::cout << "Check front\n";
+//      std::cout << "Check front\n";
       if (see_obstacle(direction, tool_size / 2)) { // Obstacle
         std::cout << "Obstacle\n";
 //        d_star(current_cell, D_STAR, FIRST_CALL);
@@ -385,8 +396,8 @@ void CCDStar::scan(CellPtr current_cell) {
 void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
     int check_first_call) {
 
-  std::cout << "Current cell: " << current_cell->get_center()->x << " "
-      << current_cell->get_center()->y << "\n";
+//  std::cout << "Current cell: " << current_cell->get_center()->x << " "
+//      << current_cell->get_center()->y << "\n";
 
 //  if (check_d_star == D_STAR) {
 //    count++;
@@ -577,9 +588,9 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
       //        neighbor_up = (*item_for_check_neighbor);
       (*item_for_check_neighbor)->set_overlapped(true);
       (*item_for_check_neighbor)->set_visited(true);
-      std::cout << "Check current cell visited: x = "
-          << current_cell->get_center()->x << " y = "
-          << current_cell->get_center()->y << "\n";
+//      std::cout << "Check current cell visited: x = "
+//          << current_cell->get_center()->x << " y = "
+//          << current_cell->get_center()->y << "\n";
     }
 
   }
@@ -608,9 +619,9 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //              != INFINITY
 //          && neighbor_up->get_visited() == false) { // No obstacle and no visited
 
-        std::cout << "Neighbor up: " << neighbor_up->get_center()->x << " "
-            << neighbor_up->get_center()->y << " "
-            << neighbor_up->get_cost_d_star() << "\n";
+//        std::cout << "Neighbor up: " << neighbor_up->get_center()->x << " "
+//            << neighbor_up->get_center()->y << " "
+//            << neighbor_up->get_cost_d_star() << "\n";
 
         list_neighbors.push_back(neighbor_up);
       }
@@ -627,9 +638,9 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //              != INFINITY
 //          && neighbor_down->get_visited() == false) { // No obstacle and no visited
 
-        std::cout << "Neighbor down: " << neighbor_down->get_center()->x << " "
-            << neighbor_down->get_center()->y << " "
-            << neighbor_down->get_cost_d_star() << "\n";
+//        std::cout << "Neighbor down: " << neighbor_down->get_center()->x << " "
+//            << neighbor_down->get_center()->y << " "
+//            << neighbor_down->get_cost_d_star() << "\n";
 
         list_neighbors.push_back(neighbor_down);
       }
@@ -646,9 +657,9 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //              != INFINITY
 //          && neighbor_left->get_visited() == false) { // No obstacle and no visited
 
-        std::cout << "Neighbor left: " << neighbor_left->get_center()->x << " "
-            << neighbor_left->get_center()->y << " "
-            << neighbor_left->get_cost_d_star() << "\n";
+//        std::cout << "Neighbor left: " << neighbor_left->get_center()->x << " "
+//            << neighbor_left->get_center()->y << " "
+//            << neighbor_left->get_cost_d_star() << "\n";
 
         list_neighbors.push_back(neighbor_left);
       }
@@ -665,16 +676,16 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //              != INFINITY
 //          && neighbor_right->get_visited() == false) { // No obstacle and no visited
 
-        std::cout << "Neighbor right: " << neighbor_right->get_center()->x
-            << " " << neighbor_right->get_center()->y << " "
-            << neighbor_right->get_cost_d_star() << "\n";
+//        std::cout << "Neighbor right: " << neighbor_right->get_center()->x
+//            << " " << neighbor_right->get_center()->y << " "
+//            << neighbor_right->get_cost_d_star() << "\n";
 
         list_neighbors.push_back(neighbor_right);
       }
     }
 //    std::cout << "I am here." << list_neighbors.empty() << "\n";
     if (list_neighbors.empty() == true) {
-      std::cout << "Call first call d star extra\n";
+//      std::cout << "Call first call d star extra\n";
       cell_for_check_third_call = CellPtr(
           new Cell(
               PointPtr(
@@ -727,9 +738,9 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
       }
 
       list_path.push_back(backpoint);
-      std::cout << "back point: " << backpoint->get_center()->x << " "
-          << backpoint->get_center()->y << " " << backpoint->get_cost_d_star()
-          << "\n";
+//      std::cout << "back point: " << backpoint->get_center()->x << " "
+//          << backpoint->get_center()->y << " " << backpoint->get_cost_d_star()
+//          << "\n";
 
       d_star(backpoint, D_STAR, SECOND_CALL);
 //        break;
@@ -738,7 +749,7 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
   } else if (check_d_star == D_STAR_EXTRA
       && (check_first_call == THIRD_CALL || check_first_call == FOURTH_CALL)) {
     //FIXME: D star extra third call
-    std::cout << "Start d star extra third call.\n";
+//    std::cout << "Start d star extra third call.\n";
 //    current_cell->set_check_d_star_extra(true);
 
     for (std::list<CellPtr>::iterator item = list_cells.begin();
@@ -774,10 +785,10 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //          break;
         } else if (neighbor_up->get_check_d_star_extra() == false) {
 
-          std::cout << "[D Star Extra 3]Neighbor up: "
-              << neighbor_up->get_center()->x << " "
-              << neighbor_up->get_center()->y << " "
-              << neighbor_up->get_cost_d_star_extra() << "\n";
+//          std::cout << "[D Star Extra 3]Neighbor up: "
+//              << neighbor_up->get_center()->x << " "
+//              << neighbor_up->get_center()->y << " "
+//              << neighbor_up->get_cost_d_star_extra() << "\n";
 
           list_neighbors.push_back(neighbor_up);
         }
@@ -807,10 +818,10 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //          break;
         } else if (neighbor_down->get_check_d_star_extra() == false) {
 
-          std::cout << "[D Star Extra 3]Neighbor down: "
-              << neighbor_down->get_center()->x << " "
-              << neighbor_down->get_center()->y << " "
-              << neighbor_down->get_cost_d_star_extra() << "\n";
+//          std::cout << "[D Star Extra 3]Neighbor down: "
+//              << neighbor_down->get_center()->x << " "
+//              << neighbor_down->get_center()->y << " "
+//              << neighbor_down->get_cost_d_star_extra() << "\n";
 
           list_neighbors.push_back(neighbor_down);
         }
@@ -840,10 +851,10 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //          break;
         } else if (neighbor_left->get_check_d_star_extra() == false) {
 
-          std::cout << "[D Star Extra 3]Neighbor left: "
-              << neighbor_left->get_center()->x << " "
-              << neighbor_left->get_center()->y << " "
-              << neighbor_left->get_cost_d_star_extra() << "\n";
+//          std::cout << "[D Star Extra 3]Neighbor left: "
+//              << neighbor_left->get_center()->x << " "
+//              << neighbor_left->get_center()->y << " "
+//              << neighbor_left->get_cost_d_star_extra() << "\n";
 
           list_neighbors.push_back(neighbor_left);
         }
@@ -873,10 +884,10 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //          break;
         } else if (neighbor_right->get_check_d_star_extra() == false) {
 
-          std::cout << "[D Star Extra 3]Neighbor right: "
-              << neighbor_right->get_center()->x << " "
-              << neighbor_right->get_center()->y << " "
-              << neighbor_right->get_cost_d_star_extra() << "\n";
+//          std::cout << "[D Star Extra 3]Neighbor right: "
+//              << neighbor_right->get_center()->x << " "
+//              << neighbor_right->get_center()->y << " "
+//              << neighbor_right->get_cost_d_star_extra() << "\n";
 
           list_neighbors.push_back(neighbor_right);
         }
@@ -928,7 +939,7 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
     }
   } else {
     //FIXME: D star extra other call
-    std::cout << "Start d star extra\n";
+//    std::cout << "Start d star extra\n";
 //    current_cell->set_check_d_star_extra(true);
 
     for (std::list<CellPtr>::iterator item = list_cells.begin();
@@ -964,10 +975,10 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //          break;
         } else if (neighbor_up->get_check_d_star_extra() == false) {
 
-          std::cout << "[D Star Extra]Neighbor up: "
-              << neighbor_up->get_center()->x << " "
-              << neighbor_up->get_center()->y << " "
-              << neighbor_up->get_cost_d_star_extra() << "\n";
+//          std::cout << "[D Star Extra]Neighbor up: "
+//              << neighbor_up->get_center()->x << " "
+//              << neighbor_up->get_center()->y << " "
+//              << neighbor_up->get_cost_d_star_extra() << "\n";
 
           list_neighbors.push_back(neighbor_up);
         }
@@ -997,10 +1008,10 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //          break;
         } else if (neighbor_down->get_check_d_star_extra() == false) {
 
-          std::cout << "[D Star Extra]Neighbor down: "
-              << neighbor_down->get_center()->x << " "
-              << neighbor_down->get_center()->y << " "
-              << neighbor_down->get_cost_d_star_extra() << "\n";
+//          std::cout << "[D Star Extra]Neighbor down: "
+//              << neighbor_down->get_center()->x << " "
+//              << neighbor_down->get_center()->y << " "
+//              << neighbor_down->get_cost_d_star_extra() << "\n";
 
           list_neighbors.push_back(neighbor_down);
         }
@@ -1030,10 +1041,10 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //          break;
         } else if (neighbor_left->get_check_d_star_extra() == false) {
 
-          std::cout << "[D Star Extra]Neighbor left: "
-              << neighbor_left->get_center()->x << " "
-              << neighbor_left->get_center()->y << " "
-              << neighbor_left->get_cost_d_star_extra() << "\n";
+//          std::cout << "[D Star Extra]Neighbor left: "
+//              << neighbor_left->get_center()->x << " "
+//              << neighbor_left->get_center()->y << " "
+//              << neighbor_left->get_cost_d_star_extra() << "\n";
 
           list_neighbors.push_back(neighbor_left);
         }
@@ -1063,10 +1074,10 @@ void CCDStar::d_star(CellPtr current_cell, bool check_d_star,
 //          break;
         } else if (neighbor_right->get_check_d_star_extra() == false) {
 
-          std::cout << "[D Star Extra]Neighbor right: "
-              << neighbor_right->get_center()->x << " "
-              << neighbor_right->get_center()->y << " "
-              << neighbor_right->get_cost_d_star_extra() << "\n";
+//          std::cout << "[D Star Extra]Neighbor right: "
+//              << neighbor_right->get_center()->x << " "
+//              << neighbor_right->get_center()->y << " "
+//              << neighbor_right->get_cost_d_star_extra() << "\n";
 
           list_neighbors.push_back(neighbor_right);
         }
