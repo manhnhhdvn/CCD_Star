@@ -18,7 +18,7 @@ CCDStar::~CCDStar() {
 }
 
 void CCDStar::initialize(PointPtr starting_point, double tool_size) {
-  path.clear();
+  path.clear(); // Biến path này là kiểu danh sách, nó lưu những ĐIỂM ở tâm của các cell. Sau mỗi
   this->tool_size = tool_size;
   this->cell_size = tool_size / (2 * MR + 1);
   starting_cell = CellPtr(
