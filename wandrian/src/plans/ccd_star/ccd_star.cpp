@@ -174,6 +174,10 @@ void CCDStar::scan(CellPtr current_cell) {
       VectorPtr right_direction = ++temp;
       VectorPtr behind_direction = temp++;
       VectorPtr left_direction = temp++;
+      std::cout << "Direction: x=" << direction->x << ", y=" << direction->y << "\n";
+      std::cout << "right_direction: x=" << right_direction->x << ", y=" << right_direction->y << "\n";
+      std::cout << "behind_direction: x=" << behind_direction->x << ", y=" << behind_direction->y << "\n";
+      std::cout << "left_direction: x=" << left_direction->x << ", y=" << left_direction->y << "\n";
       // Check right
       if (current_cell->get_visited_r() == false) {
         std::cout << "Check right\n";

@@ -185,14 +185,19 @@ bool Wandrian::wandrian_go_to(PointPtr position, bool flexibility) {
 bool Wandrian::wandrian_see_obstacle(VectorPtr direction, double distance) {
   RectanglePtr boundary;
   std::list<RectanglePtr> obstacles;
-  PointPtr new_position = path.back() + direction * distance;
+  PointPtr last_position = path.back();
+//  std::cout << "Last of path plan: x = " << last_position->x << " - y = "
+//      << last_position->y << "\n";
+  PointPtr new_position = last_position + direction * distance;
   if (robot->get_map_name() != "") { // Offline map
+    MapPtr map = MapPtr(new Map(find_map_path()));
+    map->build();
     boundary = map->get_boundary();
     obstacles = map->get_obstacles();
   } else {
     boundary = robot->get_map_boundary();
   }
-  if (boundary && boundary->get_width() > 0 && boundary->get_height() > 0)
+  if (boundary)
     if (new_position->x
         >= boundary->get_center()->x + boundary->get_width() / 2 - EPSILON
         || new_position->x
@@ -204,7 +209,7 @@ bool Wandrian::wandrian_see_obstacle(VectorPtr direction, double distance) {
                 + EPSILON) {
       return true;
     }
-  if (obstacles.size() > 0) { // Offline
+  if (obstacles.size() > 0)
     for (std::list<RectanglePtr>::iterator o = obstacles.begin();
         o != obstacles.end(); o++) {
       CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
@@ -220,12 +225,61 @@ bool Wandrian::wandrian_see_obstacle(VectorPtr direction, double distance) {
         return true;
       }
     }
-    return false;
-  } else { // Online
-    double angle = direction ^ robot->get_current_direction();
-    return robot->see_obstacle(angle, distance);
+  double angle = direction ^ robot->get_current_direction();
+  if (std::abs(angle) <= 3 * M_PI_4)
+    return
+        (std::abs(angle) <= M_PI_4) ?
+            robot->see_obstacle(IN_FRONT, distance) :
+            ((angle > M_PI_4) ?
+                robot->see_obstacle(AT_LEFT_SIDE, distance) :
+                robot->see_obstacle(AT_RIGHT_SIDE, distance));
+  else {
+    rotate_to(direction, STRICTLY);
+    return robot->see_obstacle(IN_FRONT, distance);
   }
 }
+//  std::list<RectanglePtr> obstacles;
+//  PointPtr new_position = path.back() + direction * distance;
+//  if (robot->get_map_name() != "") { // Offline map
+//    boundary = map->get_boundary();
+//    obstacles = map->get_obstacles();
+//  } else {
+//    boundary = robot->get_map_boundary();
+//  }
+//  if (boundary && boundary->get_width() > 0 && boundary->get_height() > 0)
+//    if (new_position->x
+//        >= boundary->get_center()->x + boundary->get_width() / 2 - EPSILON
+//        || new_position->x
+//            <= boundary->get_center()->x - boundary->get_width() / 2 + EPSILON
+//        || new_position->y
+//            >= boundary->get_center()->y + boundary->get_height() / 2 - EPSILON
+//        || new_position->y
+//            <= boundary->get_center()->y - boundary->get_height() / 2
+//                + EPSILON) {
+//      return true;
+//    }
+//  if (obstacles.size() > 0) { // Offline
+//    for (std::list<RectanglePtr>::iterator o = obstacles.begin();
+//        o != obstacles.end(); o++) {
+//      CellPtr obstacle = boost::static_pointer_cast<Cell>(*o);
+//      if (new_position->x
+//          >= obstacle->get_center()->x - obstacle->get_size() / 2 - EPSILON
+//          && new_position->x
+//              <= obstacle->get_center()->x + obstacle->get_size() / 2 + EPSILON
+//          && new_position->y
+//              >= obstacle->get_center()->y - obstacle->get_size() / 2 - EPSILON
+//          && new_position->y
+//              <= obstacle->get_center()->y + obstacle->get_size() / 2
+//                  + EPSILON) {
+//        return true;
+//      }
+//    }
+//    return false;
+//  } else { // Online
+//    double angle = direction ^ robot->get_current_direction();
+//    return robot->see_obstacle(angle, distance);
+//  }
+//}
 
 bool Wandrian::rotate_to(PointPtr position, bool flexibility) {
   VectorPtr direction = (position - robot->get_current_position())
